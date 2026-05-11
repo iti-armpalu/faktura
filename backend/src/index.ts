@@ -1,8 +1,11 @@
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
+import { cors } from 'hono/cors'
 import { getOrder, getInvoiceMetafields } from './shopify.js'
 
 const app = new Hono()
+
+app.use('*', cors())
 
 app.get('/health', (c) => {
     return c.json({ status: 'ok', app: 'faktura' })
