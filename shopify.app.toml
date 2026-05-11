@@ -1,0 +1,22 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "115967c3a2acd339756a971522d810b3"
+application_url = "https://localhost/new-install"
+embedded = true
+name = "Faktura"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_orders,read_products"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "http://localhost" ]
+
+[webhooks]
+api_version = "2026-04"
+
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true
