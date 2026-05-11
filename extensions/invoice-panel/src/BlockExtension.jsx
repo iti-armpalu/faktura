@@ -10,7 +10,8 @@ export default async () => {
 
 function Extension() {
   const { data } = shopify;
-  const orderId = data.selected[0]?.id
+  const rawId = data.selected[0]?.id
+  const orderId = rawId?.split('/').pop()
 
   const [invoice, setInvoice] = useState(null)
   const [loading, setLoading] = useState(true)
