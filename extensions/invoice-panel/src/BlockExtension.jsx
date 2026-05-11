@@ -2,7 +2,7 @@ import "@shopify/ui-extensions/preact";
 import { render } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-const BACKEND_URL = 'https://your-backend-url.railway.app' // TODO: update after deploy
+const BACKEND_URL = 'https://invoice-panel-production.up.railway.app'
 
 export default async () => {
   render(<Extension />, document.body);
