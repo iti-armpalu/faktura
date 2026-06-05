@@ -180,7 +180,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     })
 
     // Footer
-    page.drawText('Faktura vystavena neplatcem DPH. DPH se neuplatňuje.', {
+    page.drawText('Faktura vystavena neplatcem DPH. DPH se neuplatuje.', {
         x: marginLeft, y: 60,
         size: 8, font: fontRegular, color: gray
     })
