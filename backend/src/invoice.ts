@@ -1,22 +1,11 @@
-import { PDFDocument, rgb } from 'pdf-lib'
-import fontkit from '@pdf-lib/fontkit'
-import { readFileSync } from 'fs'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import type { ShopifyOrder } from './shopify.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 
 export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Array> {
     const pdfDoc = await PDFDocument.create()
-    pdfDoc.registerFontkit(fontkit)
 
-    const regularFontBytes = readFileSync(join(__dirname, 'OpenSans-Regular.ttf'))
-    const boldFontBytes = readFileSync(join(__dirname, 'OpenSans-Regular.ttf'))
-
-    const fontRegular = await pdfDoc.embedFont(regularFontBytes)
-    const fontBold = await pdfDoc.embedFont(boldFontBytes)
+    const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
 
     const page = pdfDoc.addPage([595, 842]) // A4
     const { width, height } = page.getSize()
@@ -28,18 +17,18 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     const marginLeft = 50
     const marginRight = width - 50
 
-    // ── Header ──────────────────────────────────────────────
+    // Header
     page.drawText('ANNA HORA', {
         x: marginLeft, y: height - 60,
         size: 22, font: fontBold, color: black
     })
 
-    page.drawText('Daňový doklad', {
+    page.drawText('Danovy doklad', {
         x: marginRight - 120, y: height - 50,
         size: 16, font: fontBold, color: black
     })
 
-    // ── Invoice number & dates ───────────────────────────────
+    // Invoice number & dates
     const issueDate = new Date(order.created_at)
     const dueDate = new Date(issueDate)
     dueDate.setDate(dueDate.getDate() + 14)
@@ -47,34 +36,34 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     const formatDate = (d: Date) =>
         d.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
-    page.drawText(`Číslo faktury: ${order.name}`, {
+    page.drawText(`Faktura: ${order.name}`, {
         x: marginRight - 200, y: height - 75,
         size: 10, font: fontRegular, color: black
     })
 
-    page.drawText(`Datum vystavení: ${formatDate(issueDate)}`, {
+    page.drawText(`Datum: ${formatDate(issueDate)}`, {
         x: marginRight - 200, y: height - 90,
         size: 10, font: fontRegular, color: black
     })
 
-    page.drawText(`Datum splatnosti: ${formatDate(dueDate)}`, {
+    page.drawText(`Splatnost: ${formatDate(dueDate)}`, {
         x: marginRight - 200, y: height - 105,
         size: 10, font: fontRegular, color: black
     })
 
-    page.drawText(`Variabilní symbol: ${order.order_number}`, {
+    page.drawText(`Var. symbol: ${order.order_number}`, {
         x: marginRight - 200, y: height - 120,
         size: 10, font: fontRegular, color: black
     })
 
-    // ── Divider ──────────────────────────────────────────────
+    // Divider
     page.drawLine({
         start: { x: marginLeft, y: height - 135 },
         end: { x: marginRight, y: height - 135 },
         thickness: 1, color: lightGray
     })
 
-    // ── Supplier (Dodavatel) ─────────────────────────────────
+    // Supplier
     page.drawText('Dodavatel', {
         x: marginLeft, y: height - 155,
         size: 9, font: fontBold, color: gray
@@ -85,13 +74,13 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
         size: 10, font: fontBold, color: black
     })
 
-    page.drawText('Neplátce DPH', {
+    page.drawText('Neplatce DPH', {
         x: marginLeft, y: height - 185,
         size: 9, font: fontRegular, color: gray
     })
 
-    // ── Customer (Odběratel) ─────────────────────────────────
-    page.drawText('Odběratel', {
+    // Customer
+    page.drawText('Odberatel', {
         x: 300, y: height - 155,
         size: 9, font: fontBold, color: gray
     })
@@ -121,10 +110,9 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
         })
     }
 
-    // ── Line items table ─────────────────────────────────────
+    // Line items table
     let y = height - 270
 
-    // Table header
     page.drawRectangle({
         x: marginLeft, y: y - 5,
         width: width - 100, height: 20,
@@ -132,13 +120,12 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     })
 
     page.drawText('Popis', { x: marginLeft + 5, y, size: 9, font: fontBold, color: black })
-    page.drawText('Množství', { x: 350, y, size: 9, font: fontBold, color: black })
+    page.drawText('Mnozstvi', { x: 350, y, size: 9, font: fontBold, color: black })
     page.drawText('Cena/ks', { x: 420, y, size: 9, font: fontBold, color: black })
     page.drawText('Celkem', { x: 490, y, size: 9, font: fontBold, color: black })
 
     y -= 25
 
-    // Line items
     for (const item of order.line_items) {
         const itemTotal = parseFloat(item.price) * item.quantity
 
@@ -152,19 +139,18 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
             size: 9, font: fontRegular, color: black
         })
 
-        page.drawText(`${parseFloat(item.price).toFixed(2)} Kč`, {
+        page.drawText(`${parseFloat(item.price).toFixed(2)} Kc`, {
             x: 420, y,
             size: 9, font: fontRegular, color: black
         })
 
-        page.drawText(`${itemTotal.toFixed(2)} Kč`, {
+        page.drawText(`${itemTotal.toFixed(2)} Kc`, {
             x: 490, y,
             size: 9, font: fontRegular, color: black
         })
 
         y -= 20
 
-        // Divider between items
         page.drawLine({
             start: { x: marginLeft, y: y + 5 },
             end: { x: marginRight, y: y + 5 },
@@ -172,7 +158,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
         })
     }
 
-    // ── Total ────────────────────────────────────────────────
+    // Total
     y -= 10
 
     page.drawLine({
@@ -183,18 +169,18 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
 
     y -= 15
 
-    page.drawText('Celkem k úhradě:', {
+    page.drawText('Celkem k uhrade:', {
         x: 380, y,
         size: 12, font: fontBold, color: black
     })
 
-    page.drawText(`${parseFloat(order.total_price).toFixed(2)} Kč`, {
+    page.drawText(`${parseFloat(order.total_price).toFixed(2)} Kc`, {
         x: 490, y,
         size: 12, font: fontBold, color: black
     })
 
-    // ── Footer ───────────────────────────────────────────────
-    page.drawText('Faktura byla vystavena plátcem neplátce DPH. DPH se neuplatňuje.', {
+    // Footer
+    page.drawText('Faktura vystavena neplatcem DPH. DPH se neuplatňuje.', {
         x: marginLeft, y: 60,
         size: 8, font: fontRegular, color: gray
     })
