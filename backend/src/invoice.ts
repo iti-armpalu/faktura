@@ -58,30 +58,55 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
 
     // Divider
     page.drawLine({
-        start: { x: marginLeft, y: height - 135 },
-        end: { x: marginRight, y: height - 135 },
+        start: { x: marginLeft, y: height - 155 },
+        end: { x: marginRight, y: height - 155 },
         thickness: 1, color: lightGray
     })
 
     // Supplier
     page.drawText('Dodavatel', {
-        x: marginLeft, y: height - 155,
+        x: marginLeft, y: height - 175,
         size: 9, font: fontBold, color: gray
     })
 
     page.drawText('Anna Hora s.r.o.', {
-        x: marginLeft, y: height - 170,
+        x: marginLeft, y: height - 190,
         size: 10, font: fontBold, color: black
     })
 
+    page.drawText('Jinonicka 804/80', {
+        x: marginLeft, y: height - 203,
+        size: 9, font: fontRegular, color: black
+    })
+
+    page.drawText('15800 Praha 5, Czech Republic', {
+        x: marginLeft, y: height - 216,
+        size: 9, font: fontRegular, color: black
+    })
+
+    page.drawText('IC: 09373781', {
+        x: marginLeft, y: height - 229,
+        size: 9, font: fontRegular, color: black
+    })
+
     page.drawText('Neplatce DPH', {
-        x: marginLeft, y: height - 185,
+        x: marginLeft, y: height - 242,
         size: 9, font: fontRegular, color: gray
+    })
+
+    page.drawText('Barbora@annahora.com', {
+        x: marginLeft, y: height - 255,
+        size: 9, font: fontRegular, color: gray
+    })
+
+    page.drawText('Registrace: MSPH Mestsky soud v Praze, sp. zn. C 335341', {
+        x: marginLeft, y: height - 268,
+        size: 8, font: fontRegular, color: gray
     })
 
     // Customer
     page.drawText('Odberatel', {
-        x: 300, y: height - 155,
+        x: 300, y: height - 175,
         size: 9, font: fontBold, color: gray
     })
 
@@ -89,29 +114,29 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     const billingAddress = order.billing_address
 
     page.drawText(billingName, {
-        x: 300, y: height - 170,
+        x: 300, y: height - 190,
         size: 10, font: fontBold, color: black
     })
 
     if (billingAddress) {
         page.drawText(billingAddress.address1 || '', {
-            x: 300, y: height - 185,
+            x: 300, y: height - 203,
             size: 10, font: fontRegular, color: black
         })
 
         page.drawText(`${billingAddress.zip || ''} ${billingAddress.city || ''}`, {
-            x: 300, y: height - 200,
+            x: 300, y: height - 216,
             size: 10, font: fontRegular, color: black
         })
 
         page.drawText(billingAddress.country || '', {
-            x: 300, y: height - 215,
+            x: 300, y: height - 229,
             size: 10, font: fontRegular, color: black
         })
     }
 
     // Line items table
-    let y = height - 270
+    let y = height - 310
 
     page.drawRectangle({
         x: marginLeft, y: y - 5,
