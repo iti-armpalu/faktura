@@ -23,15 +23,12 @@ export async function getOrder(orderId: string) {
 }
 
 export async function saveInvoiceMetafields(orderId: string, invoice: {
-    triviId: string
     invoiceNumber: string
-    pdfUrl: string
+    createdAt: string
 }) {
     const metafields = [
-        { namespace: 'faktura', key: 'trivi_invoice_id', value: invoice.triviId, type: 'single_line_text_field' },
-        { namespace: 'faktura', key: 'trivi_invoice_number', value: invoice.invoiceNumber, type: 'single_line_text_field' },
-        { namespace: 'faktura', key: 'trivi_invoice_pdf_url', value: invoice.pdfUrl, type: 'single_line_text_field' },
-        { namespace: 'faktura', key: 'trivi_created_at', value: new Date().toISOString(), type: 'single_line_text_field' }
+        { namespace: 'faktura', key: 'invoice_number', value: invoice.invoiceNumber, type: 'single_line_text_field' },
+        { namespace: 'faktura', key: 'created_at', value: invoice.createdAt, type: 'single_line_text_field' },
     ]
 
     for (const metafield of metafields) {
@@ -64,6 +61,7 @@ export async function getInvoiceMetafields(orderId: string) {
 // Types
 export interface ShopifyOrder {
     id: number
+    name: string
     order_number: number
     created_at: string
     currency: string

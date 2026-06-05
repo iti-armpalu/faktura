@@ -18,7 +18,8 @@
     "@hono/node-server": "^2.0.2",
     "dotenv": "^17.4.2",
     "hono": "^4.12.18",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
     "@types/node": "^25.7.0",

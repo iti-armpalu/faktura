@@ -1,7 +1,8 @@
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
 import { cors } from 'hono/cors'
-import { getOrder, getInvoiceMetafields } from './shopify.js'
+import { getOrder, getInvoiceMetafields, saveInvoiceMetafields } from './shopify.js'
+import { generateInvoicePdf } from './invoice.js'
 
 const app = new Hono()
 
@@ -11,6 +12,7 @@ app.get('/health', (c) => {
     return c.json({ status: 'ok', app: 'faktura' })
 })
 
+// Check if invoice exists for an order
 app.get('/invoices/order/:orderId', async (c) => {
     const orderId = c.req.param('orderId')
 
@@ -22,10 +24,8 @@ app.get('/invoices/order/:orderId', async (c) => {
         }
 
         const invoice = {
-            triviId: metafields.find(m => m.key === 'trivi_invoice_id')?.value,
-            invoiceNumber: metafields.find(m => m.key === 'trivi_invoice_number')?.value,
-            pdfUrl: metafields.find(m => m.key === 'trivi_invoice_pdf_url')?.value,
-            createdAt: metafields.find(m => m.key === 'trivi_created_at')?.value,
+            invoiceNumber: metafields.find(m => m.key === 'invoice_number')?.value,
+            createdAt: metafields.find(m => m.key === 'created_at')?.value,
         }
 
         return c.json({ invoice })
@@ -35,6 +35,7 @@ app.get('/invoices/order/:orderId', async (c) => {
     }
 })
 
+// Create invoice for an order
 app.post('/invoices', async (c) => {
     const body = await c.req.json() as { orderId: string }
     const { orderId } = body
@@ -52,15 +53,38 @@ app.post('/invoices', async (c) => {
 
         // Fetch order from Shopify
         const order = await getOrder(orderId)
-        console.log(`Creating invoice for order #${order.order_number}`)
+        console.log(`Creating invoice for order ${order.name}`)
 
-        // TODO: create invoice in Trivi
-        // TODO: save metafields
+        // Save metafields
+        await saveInvoiceMetafields(orderId, {
+            invoiceNumber: order.name,
+            createdAt: new Date().toISOString()
+        })
 
-        return c.json({ message: 'Trivi integration pending', order: order.order_number }, 501)
+        return c.json({ invoiceNumber: order.name })
     } catch (error) {
         console.error('Error creating invoice:', error)
         return c.json({ error: 'Failed to create invoice' }, 500)
+    }
+})
+
+// Download PDF for an order
+app.get('/invoices/order/:orderId/pdf', async (c) => {
+    const orderId = c.req.param('orderId')
+
+    try {
+        const order = await getOrder(orderId)
+        const pdfBytes = await generateInvoicePdf(order)
+
+        return new Response(Buffer.from(pdfBytes), {
+            headers: {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="faktura-${order.name}.pdf"`
+            }
+        })
+    } catch (error) {
+        console.error('Error generating PDF:', error)
+        return c.json({ error: 'Failed to generate PDF' }, 500)
     }
 })
 
