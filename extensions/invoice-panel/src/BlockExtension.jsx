@@ -28,8 +28,8 @@ function Extension() {
       setLoading(true)
       setError(null)
       const res = await fetch(`${BACKEND_URL}/invoices/order/${orderId}`)
-      const data = await res.json()
-      setInvoice(data.invoice)
+      const result = await res.json()
+      setInvoice(result.invoice)
     } catch (err) {
       setError('Failed to load invoice status')
     } finally {
@@ -46,8 +46,8 @@ function Extension() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to create invoice')
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || 'Failed to create invoice')
       await fetchInvoice()
     } catch (err) {
       setError(err.message)
@@ -91,7 +91,7 @@ function Extension() {
             <s-text>Created: {new Date(invoice.createdAt).toLocaleDateString('cs-CZ')}</s-text>
             <s-button
               variant="primary"
-              onClick={() => window.open(invoice.pdfUrl, '_blank')}
+              onClick={() => window.open(`${BACKEND_URL}/invoices/order/${orderId}/pdf`, '_blank')}
             >
               Download PDF
             </s-button>
