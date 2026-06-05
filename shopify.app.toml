@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "115967c3a2acd339756a971522d810b3"
-application_url = "https://localhost/new-install"
+application_url = "https://invoice-panel-production.up.railway.app"
 embedded = true
 name = "Faktura"
 
@@ -12,7 +12,7 @@ optional_scopes = [ ]
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [ "http://localhost" ]
+redirect_urls = [ "https://invoice-panel-production.up.railway.app" ]
 
 [webhooks]
 api_version = "2026-04"
