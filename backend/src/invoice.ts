@@ -13,7 +13,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     pdfDoc.registerFontkit(fontkit)
 
     const regularFontBytes = readFileSync(join(__dirname, 'OpenSans-Regular.ttf'))
-    const boldFontBytes = readFileSync(join(__dirname, 'OpenSans-Bold.ttf'))
+    const boldFontBytes = readFileSync(join(__dirname, 'OpenSans-Regular.ttf'))
 
     const fontRegular = await pdfDoc.embedFont(regularFontBytes)
     const fontBold = await pdfDoc.embedFont(boldFontBytes)
