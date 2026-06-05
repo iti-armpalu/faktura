@@ -1,13 +1,25 @@
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { PDFDocument, rgb } from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
+import { readFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 import type { ShopifyOrder } from './shopify.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Array> {
     const pdfDoc = await PDFDocument.create()
+    pdfDoc.registerFontkit(fontkit)
+
+    const regularFontBytes = readFileSync(join(__dirname, 'OpenSans-Regular.ttf'))
+    const boldFontBytes = readFileSync(join(__dirname, 'OpenSans-Bold.ttf'))
+
+    const fontRegular = await pdfDoc.embedFont(regularFontBytes)
+    const fontBold = await pdfDoc.embedFont(boldFontBytes)
+
     const page = pdfDoc.addPage([595, 842]) // A4
     const { width, height } = page.getSize()
-
-    const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
-    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
 
     const black = rgb(0, 0, 0)
     const gray = rgb(0.5, 0.5, 0.5)
