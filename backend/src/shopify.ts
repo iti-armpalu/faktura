@@ -67,6 +67,7 @@ export interface ShopifyOrder {
     currency: string
     total_price: string
     payment_gateway: string
+    source_name: string | null
     billing_address: {
         name: string
         address1: string

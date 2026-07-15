@@ -22,6 +22,15 @@ function generateQrPlatbaString(order: ShopifyOrder, invoiceNumber: string): str
     return `SPD*1.0*ACC:${IBAN}+${BIC}*AM:${amount}*CC:CZK*VS:${vs}*MSG:${order.name}`
 }
 
+function getOrderSource(order: ShopifyOrder): string {
+    switch (order.source_name) {
+        case 'web': return 'Online store'
+        case 'pos': return 'Point of Sale'
+        case 'shopify_draft_orders': return 'Manual order'
+        default: return 'Online store'
+    }
+}
+
 export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Array> {
     const pdfDoc = await PDFDocument.create()
 
@@ -113,13 +122,18 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     })
 
     page.drawText('Payment Method:', {
-        x: marginLeft, y: height - 212,
+        x: marginLeft, y: height - 210,
         size: 8, font: fontRegular, color: gray
     })
 
     page.drawText('Bank transfer', {
-        x: marginLeft, y: height - 225,
+        x: marginLeft, y: height - 222,
         size: 9, font: fontBold, color: black
+    })
+
+    page.drawText(`Order source: ${getOrderSource(order)}`, {
+        x: marginLeft, y: height - 235,
+        size: 8, font: fontRegular, color: gray
     })
 
     // ── ANNA HORA center text ─────────────────────────────────
@@ -186,7 +200,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     })
 
     // ── Bank details bar ─────────────────────────────────────
-    const barY = height - 255
+    const barY = height - 265
     page.drawRectangle({
         x: marginLeft, y: barY,
         width: width - 100, height: 35,
@@ -246,7 +260,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     })
 
     // ── Line items table ─────────────────────────────────────
-    let y = height - 310
+    let y = height - 320
 
     page.drawText('Item', { x: marginLeft, y, size: 8, font: fontBold, color: black })
     page.drawText('Unit price', { x: 310, y, size: 8, font: fontBold, color: black })
@@ -349,12 +363,6 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     page.drawText('QR Platba+F', {
         x: marginLeft, y: 52,
         size: 7, font: fontRegular, color: gray
-    })
-
-    // ── Footer ───────────────────────────────────────────────
-    page.drawText('Faktura vystavena neplatcem DPH. DPH se neuplatuje.', {
-        x: marginLeft + 110, y: 80,
-        size: 8, font: fontRegular, color: gray
     })
 
     return pdfDoc.save()
