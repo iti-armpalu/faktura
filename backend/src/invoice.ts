@@ -136,12 +136,6 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
         size: 8, font: fontRegular, color: gray
     })
 
-    // ── ANNA HORA center text ─────────────────────────────────
-    page.drawText('ANNA HORA', {
-        x: 210, y: height - 140,
-        size: 20, font: fontBold, color: rgb(0.7, 0.7, 0.7)
-    })
-
     // ── Customer ─────────────────────────────────────────────
     const billingName = order.billing_address?.name || order.contact_email
     const billingAddress = order.billing_address
@@ -200,7 +194,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     })
 
     // ── Bank details bar ─────────────────────────────────────
-    const barY = height - 265
+    const barY = height - 280
     page.drawRectangle({
         x: marginLeft, y: barY,
         width: width - 100, height: 35,
@@ -318,7 +312,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     }
 
     // ── Totals ───────────────────────────────────────────────
-    y -= 10
+    y -= 30
 
     page.drawText('Rounding', {
         x: 390, y,
