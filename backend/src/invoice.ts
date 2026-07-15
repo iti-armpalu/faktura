@@ -6,6 +6,10 @@ const BANK_ACCOUNT = '2501853537/2010'
 const IBAN = 'CZ1320100000002501853537'
 const BIC = 'FIOBCZPPXXX'
 
+function stripDiacritics(str: string): string {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
 function generateInvoiceNumber(order: ShopifyOrder): string {
     const year = new Date(order.created_at).getFullYear()
     const paddedNumber = String(order.order_number).padStart(6, '0')
@@ -133,28 +137,28 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
         size: 9, font: fontBold, color: black
     })
 
-    page.drawText(billingName, {
+    page.drawText(stripDiacritics(billingName), {
         x: 340, y: height - 92,
         size: 9, font: fontRegular, color: black
     })
 
     if (billingAddress) {
-        page.drawText(billingAddress.address1 || '', {
+        page.drawText(stripDiacritics(billingAddress.address1 || ''), {
             x: 340, y: height - 105,
             size: 9, font: fontRegular, color: black
         })
 
-        page.drawText(`${billingAddress.zip || ''} ${billingAddress.city || ''}`, {
+        page.drawText(stripDiacritics(`${billingAddress.zip || ''} ${billingAddress.city || ''}`), {
             x: 340, y: height - 118,
             size: 9, font: fontRegular, color: black
         })
 
-        page.drawText(billingAddress.country || '', {
+        page.drawText(stripDiacritics(billingAddress.country || ''), {
             x: 340, y: height - 131,
             size: 9, font: fontRegular, color: black
         })
 
-        page.drawText(order.contact_email || '', {
+        page.drawText(stripDiacritics(order.contact_email || ''), {
             x: 340, y: height - 150,
             size: 9, font: fontRegular, color: black
         })
@@ -244,7 +248,6 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     // ── Line items table ─────────────────────────────────────
     let y = height - 310
 
-    // Table header
     page.drawText('Item', { x: marginLeft, y, size: 8, font: fontBold, color: black })
     page.drawText('Unit price', { x: 310, y, size: 8, font: fontBold, color: black })
     page.drawText('Qt', { x: 390, y, size: 8, font: fontBold, color: black })
@@ -264,7 +267,7 @@ export async function generateInvoicePdf(order: ShopifyOrder): Promise<Uint8Arra
     for (const item of order.line_items) {
         const itemTotal = parseFloat(item.price) * item.quantity
 
-        page.drawText(item.title, {
+        page.drawText(stripDiacritics(item.title), {
             x: marginLeft, y,
             size: 9, font: fontRegular, color: black
         })
